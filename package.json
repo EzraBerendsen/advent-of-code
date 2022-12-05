@@ -1,0 +1,14 @@
+{
+  "name": "advent-of-code",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "Ezrabeer",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^18.11.10",
+    "ts-node": "^10.9.1",
+    "tslib": "^2.4.1",
+    "typescript": "^4.9.3"
+  }
+}
