@@ -15,7 +15,7 @@ for (let i = 0; i < input.length; ++i) {
     }
   }
 
-  if (seen.length === 4) {
+  if (seen.length === DISTINCT_CHARACTERS) {
     console.log("Answer is:\n" + (i + DISTINCT_CHARACTERS))
     break
   }
