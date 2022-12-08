@@ -2,7 +2,7 @@ import fs from "fs"
 import path from "path"
 
 const input = fs
-  .readFileSync(path.join(__dirname, "test.txt"))
+  .readFileSync(path.join(__dirname, "input.txt"))
   .toString()
   .trim()
 
@@ -10,76 +10,88 @@ const treeMatrix = input.split("\n").map((line) => {
   return line.split("").map((t) => parseInt(t, 10))
 })
 
-const visibleTrees = []
+const treeScenicScores = []
 
 for (let rows = 0; rows < treeMatrix.length; ++rows) {
   for (let columns = 0; columns < treeMatrix[rows].length; ++columns) {
-    const tree = treeMatrix[rows][columns]
-
-    const isVisible = [
-      getIsTreeVisibleFromTop(rows, columns),
-      getIsTreeVisibleFromBottom(rows, columns),
-      getIsTreeVisibleFromLeft(rows, columns),
-      getIsTreeVisibleFromRight(rows, columns),
-    ].some((visibleTree) => visibleTree)
-
-    if (isVisible) {
-      visibleTrees.push(tree)
-    }
+    treeScenicScores.push(
+      [
+        getScenicScoreLeftTrees(rows, columns),
+        getScenicScoreTopTrees(rows, columns),
+        getScenicScoreBottomTrees(rows, columns),
+        getScenicScoreRightTrees(rows, columns),
+      ].reduce((acc, curr) => acc * curr, 1)
+    )
   }
 }
 
-function getIsTreeVisibleFromTop(row: number, column: number) {
+function getScenicScoreTopTrees(row: number, column: number) {
   const tree = treeMatrix[row][column]
+
+  let totalDistance = 0
 
   for (let x = row - 1; x >= 0; --x) {
+    totalDistance += 1
+
     const comparingTree = treeMatrix[x][column]
     if (tree <= comparingTree) {
-      return false
+      return totalDistance
     }
   }
 
-  return true
+  return totalDistance
 }
 
-function getIsTreeVisibleFromBottom(row: number, column: number) {
+function getScenicScoreBottomTrees(row: number, column: number) {
   const tree = treeMatrix[row][column]
+
+  let totalDistance = 0
 
   for (let x = row + 1; x < treeMatrix[row].length; ++x) {
+    totalDistance += 1
+
     const comparingTree = treeMatrix[x][column]
     if (tree <= comparingTree) {
-      return false
+      return totalDistance
     }
   }
 
-  return true
+  return totalDistance
 }
 
-function getIsTreeVisibleFromLeft(row: number, column: number) {
+function getScenicScoreLeftTrees(row: number, column: number) {
   const tree = treeMatrix[row][column]
+
+  let totalDistance = 0
 
   for (let y = column - 1; y >= 0; --y) {
+    totalDistance += 1
+
     const comparingTree = treeMatrix[row][y]
     if (tree <= comparingTree) {
-      return false
+      return totalDistance
     }
   }
 
-  return true
+  return totalDistance
 }
 
-function getIsTreeVisibleFromRight(row: number, column: number) {
+function getScenicScoreRightTrees(row: number, column: number) {
   const tree = treeMatrix[row][column]
 
+  let totalDistance = 0
+
   for (let y = column + 1; y < treeMatrix.length; ++y) {
+    totalDistance += 1
+
     const comparingTree = treeMatrix[row][y]
     if (tree <= comparingTree) {
-      return false
+      return totalDistance
     }
   }
 
-  return true
+  return totalDistance
 }
 
 console.log("Answer:")
-console.log(visibleTrees.length)
+console.log(Math.max(...treeScenicScores))
