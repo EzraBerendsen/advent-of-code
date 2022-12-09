@@ -18,32 +18,70 @@ function parseLine(line: Line): [Direction, number] {
   return [direction, steps]
 }
 
-function updatePosition(point: Point, direction: Direction, step: number) {
+function movePoint(point: Point, direction: Direction) {
+  const STEP_COUNT = 1
+
   switch (direction) {
     case "L":
-      point.x -= step
+      point.x -= STEP_COUNT
       break
     case "U":
-      point.y += step
+      point.y += STEP_COUNT
       break
     case "R":
-      point.x += step
+      point.x += STEP_COUNT
       break
     case "D":
-      point.y -= step
+      point.y -= STEP_COUNT
       break
   }
 }
 
-const uniqueTailPositions: Point[] = [
-  { x: 0, y: 0 }
-]
+function movePointDiagonally(
+  point: Point,
+  differenceX: number,
+  differenceY: number
+) {
+  if (differenceX >= 1) {
+    point.x += 1
+  }
+  if (differenceX <= -1) {
+    point.x -= 1
+  }
+  if (differenceY >= 1) {
+    point.y += 1
+  }
+  if (differenceY <= -1) {
+    point.y -= 1
+  }
+}
 
-const headPosition: Point = { x: 0, y: 0 }
-const tailPosition: Point = { x: 0, y: 0 }
+function calculatePositionAndMove(head: Point, current: Point) {
+  const pointDistance = Math.max(
+    Math.abs(current.x - head.x),
+    Math.abs(current.y - head.y)
+  )
+  if (pointDistance > 1) {
+    const directionX = head.x - current.x
+    const directionY = head.y - current.y
+
+    current.x += Math.abs(directionX) === 2 ? directionX / 2 : directionX
+    current.y += Math.abs(directionY) === 2 ? directionY / 2 : directionY
+  }
+}
+
+const positions: Point[] = Array.from({ length: 10 }).map((_) => ({
+  x: 0,
+  y: 0,
+}))
+
+const headPosition: Point = positions[0]
+const tailPosition: Point = positions[positions.length - 1]
+
+const uniqueTailPositions: Point[] = [{ x: 0, y: 0 }]
 
 const input = fs
-  .readFileSync(path.join(__dirname, "testb.txt"))
+  .readFileSync(path.join(__dirname, "input.txt"))
   .toString()
   .trim()
 
@@ -52,43 +90,27 @@ const lines = input.split("\n")
 lines.forEach((line) => {
   const [direction, steps] = parseLine(line as Line)
 
-  for (let i = 1; i <= steps; i++) {
-    updatePosition(headPosition, direction, 1)
+  for (let i = 0; i < steps; i++) {
+    movePoint(headPosition, direction)
 
-    const [currentHeadX, currentHeadY] = [headPosition.x, headPosition.y]
-    const [currentTailX, currentTailY] = [tailPosition.x, tailPosition.y]
+    for (let j = 1; j < positions.length - 1; ++j) {
+      const head = positions[j - 1]
+      const current = positions[j]
 
-    const differenceX = currentHeadX - currentTailX
-    const differenceY = currentHeadY - currentTailY
-
-    const absDifferenceX = Math.abs(differenceX)
-    const absDifferenceY = Math.abs(differenceY)
-
-    const isTouchingDiagonally = absDifferenceY === 1 && absDifferenceX === 1
-
-    const inSameRowOrColumn = (currentHeadX === currentTailX) || (currentHeadY === currentTailY)
-
-    if ((absDifferenceX > 1 || absDifferenceY > 1) && inSameRowOrColumn) {
-      updatePosition(tailPosition, direction, 1)
-    }
-    if (!inSameRowOrColumn && !isTouchingDiagonally) {
-      if (differenceY >= 1) {
-        tailPosition.y += 1
-      }
-      if (differenceY <= -1) {
-        tailPosition.y -= 1
-      }
-      if (differenceX >= 1) {
-        tailPosition.x += 1
-      }
-      if (differenceX <= -1) {
-        tailPosition.x -= 1
-      }
+      calculatePositionAndMove(head, current)
     }
 
-    if (!uniqueTailPositions.find((p) => p.x === tailPosition.x && p.y === tailPosition.y)) {
+    const penultimatePosition = positions[positions.length - 2]
+    calculatePositionAndMove(penultimatePosition, tailPosition)
+
+    const position = { ...tailPosition }
+
+    const isUniqueTailPosition = uniqueTailPositions.find(
+      (p) => p.x === position.x && p.y === position.y
+    )
+
+    if (!isUniqueTailPosition) {
       // Make copy, because otherwise we directly update the reference.
-      const position = { ...tailPosition }
       uniqueTailPositions.push(position)
     }
   }
