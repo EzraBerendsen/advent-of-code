@@ -6,7 +6,8 @@
   "author": "Ezrabeer",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^18.11.10",
+    "@tsconfig/recommended": "^1.0.3",
+    "@types/node": "^18.19.0",
     "prettier": "^2.8.0",
     "ts-node": "^10.9.1",
     "tslib": "^2.4.1",
